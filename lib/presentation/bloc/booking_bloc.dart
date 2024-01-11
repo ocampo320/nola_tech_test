@@ -115,21 +115,18 @@ class BookingBloc {
   }
 
   void saveBooking() async {
-    int cout = 1;
     await loadBookings();
-    if (_bookingsController.value.isNotEmpty) {
-      for (Booking booking in _bookingsController.value) {
-        if (booking.tennisCourt.name == _selectedItemController.value) {
-          int currenCount = booking.tennisCourt.bookingCounter??0;
-          cout = currenCount + cout;
-        }
-      }
-    }
+    int count = _bookingsController.value
+        .where((booking) =>
+            booking.tennisCourt.name == _selectedItemController.value)
+        .length;
+
+    print(count.toString());
 
     final newBooking = Booking(
         TennisCourt(
             name: _selectedItemController.value,
-            bookingCounter: cout), // Ajusta según tus necesidades
+            bookingCounter: 0), // Ajusta según tus necesidades
         _dateController.value,
         _userNameController.value);
 
