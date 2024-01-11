@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:test_flutter_dev/auto_route.gr.dart';
 import 'package:test_flutter_dev/data/data_source/remote_data_source.dart';
 import 'package:test_flutter_dev/presentation/bloc/booking_bloc.dart';
-import 'package:test_flutter_dev/presentation/views/booking_view.dart';
 
 import 'domain/repositories/add_booking_imp.dart';
 import 'domain/repositories/delete_booking_imp.dart';

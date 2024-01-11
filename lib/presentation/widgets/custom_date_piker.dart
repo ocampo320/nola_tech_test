@@ -14,6 +14,16 @@ class CustomDatePicker extends StatefulWidget {
 }
 
 class _CustomDatePickerState extends State<CustomDatePicker> {
+  late TextEditingController _dateController;
+
+  @override
+  void initState() {
+    super.initState();
+    _dateController = TextEditingController(
+      text: '${widget.selectedDate.toLocal()}'.split(' ')[0],
+    );
+  }
+
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -24,28 +34,32 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
 
     if (picked != null && picked != widget.selectedDate) {
       widget.onDateChanged(picked);
+      _dateController.text = '${picked.toLocal()}'.split(' ')[0];
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: <Widget>[
-        const Text(
-          'Fecha seleccionada:',
-          style: TextStyle(fontSize: 18),
-        ),
-        const SizedBox(width: 10),
-        Text(
-          '${widget.selectedDate.toLocal()}'.split(' ')[0],
-          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(width: 20),
-        ElevatedButton(
-          onPressed: () => _selectDate(context),
-          child: const Text('Seleccionar Fecha'),
-        ),
-      ],
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey),
+        borderRadius: BorderRadius.circular(4.0),
+      ),
+      child: Row(
+        children: <Widget>[
+          const SizedBox(width: 10),
+          Expanded(
+            child: TextField(
+              controller: _dateController,
+              readOnly: true,
+              onTap: () => _selectDate(context),
+              decoration:
+                  const InputDecoration(prefixIcon: Icon(Icons.date_range_outlined)),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class CustomTextFieldWidget extends StatelessWidget {
-  final TextEditingController controller;
+  final TextEditingController ?  controller;
   final String labelText;
   final String hintText;
   final IconData? prefixIcon;
@@ -10,7 +10,7 @@ class CustomTextFieldWidget extends StatelessWidget {
   final Function(String)? onChanged;
 
   CustomTextFieldWidget({
-    required this.controller,
+     this.controller,
     required this.labelText,
     required this.hintText,
     this.prefixIcon,
