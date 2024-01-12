@@ -25,6 +25,9 @@ class BookingBloc {
   Stream<String> get selectedItemStream => _selectedItemController.stream;
   final BehaviorSubject<String> _userNameController = BehaviorSubject<String>();
   Stream<String> get userNameStream => _userNameController.stream;
+
+  final BehaviorSubject<bool> _showAlertController = BehaviorSubject<bool>();
+  Stream<bool> get showAlertStream => _showAlertController.stream;
   BookingBloc({
     required this.getBookings,
     required this.addBooking,
@@ -34,6 +37,7 @@ class BookingBloc {
     _selectedDate = DateTime.now();
     _dateController = BehaviorSubject<DateTime>.seeded(_selectedDate);
     _selectedItemController.add("Cancha A");
+    _showAlertController.add(true);
   }
 
   // Getter para obtener el stream
@@ -114,23 +118,27 @@ class BookingBloc {
     }
   }
 
-  void saveBooking() async {
+  Future saveBooking() async {
     await loadBookings();
+
     int count = _bookingsController.value
         .where((booking) =>
             booking.tennisCourt.name == _selectedItemController.value)
         .length;
 
-    print(count.toString());
+    if (count >= 3) {
+      _showAlertController.add(false);
+    } else {
+      final newBooking = Booking(
+          TennisCourt(
+              name: _selectedItemController.value,
+              bookingCounter: 0), // Ajusta según tus necesidades
+          _dateController.value,
+          _userNameController.value);
 
-    final newBooking = Booking(
-        TennisCourt(
-            name: _selectedItemController.value,
-            bookingCounter: 0), // Ajusta según tus necesidades
-        _dateController.value,
-        _userNameController.value);
-
-    addBookingg(newBooking);
+      addBookingg(newBooking);
+      _showAlertController.add(true);
+    }
   }
 
   void dispose() {

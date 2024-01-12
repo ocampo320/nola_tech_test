@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:test_flutter_dev/di/app_module.dart';
-import 'package:test_flutter_dev/domain/entities/booking.dart';
-import 'package:test_flutter_dev/domain/entities/tennis_court.dart';
 import 'package:test_flutter_dev/presentation/bloc/booking_bloc.dart';
+import 'package:test_flutter_dev/presentation/widgets/custom_alert.dart';
 import 'package:test_flutter_dev/presentation/widgets/custom_app_bar_widget.dart';
 import 'package:test_flutter_dev/presentation/widgets/custom_buttom.dart';
 import 'package:test_flutter_dev/presentation/widgets/custom_date_piker.dart';
@@ -21,10 +20,12 @@ class NewBookingPage extends StatefulWidget {
 TextEditingController userName = TextEditingController();
 
 class _NewBookingPageState extends State<NewBookingPage> {
+  final BookingBloc _bookingBloc = AppModule().provideBookingBloc();
+  @override
+  
+
   @override
   Widget build(BuildContext context) {
-    final BookingBloc _bookingBloc = AppModule().provideBookingBloc();
-
     List<String> items = [
       'Cancha A',
       'Cancha B',
@@ -75,10 +76,30 @@ class _NewBookingPageState extends State<NewBookingPage> {
                     },
                   );
                 }),
-            CustomButton(
-              text: "Guardar",
-              onPressed: () => _bookingBloc.saveBooking(),
-            )
+            StreamBuilder<bool>(
+                stream: _bookingBloc.showAlertStream,
+                builder: (context, snapshot) {
+                  return CustomButton(
+                    text: "Guardar",
+                    onPressed: () async {
+                      await _bookingBloc.saveBooking();
+
+                      if (snapshot.data == false) {
+                        // ignore: use_build_context_synchronously
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return CustomAlert(
+                              title: 'Alerta',
+                              content: 'Ya no puede agendar mas usuario',
+                              buttonText: 'Aceptar',
+                            );
+                          },
+                        );
+                      }
+                    },
+                  );
+                })
           ],
         ),
       )),
