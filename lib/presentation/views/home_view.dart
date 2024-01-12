@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:test_flutter_dev/auto_route.gr.dart';
+import 'package:test_flutter_dev/data/data_source/remote_data_source.dart';
 import 'package:test_flutter_dev/di/app_module.dart';
 import 'package:test_flutter_dev/domain/entities/booking.dart';
 import 'package:test_flutter_dev/presentation/bloc/booking_bloc.dart';
@@ -40,15 +41,16 @@ class _HomeViewState extends State<HomeView> {
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 List<Booking> bookings = snapshot.data ?? [];
+                bookings.sort((a, b) => b.date.compareTo(a.date));
 
                 return ListView.builder(
                   itemCount: bookings.length,
                   itemBuilder: (context, index) {
-                    return buildBookingCard(bookings[index]);
+                    return buildBookingCard(bookings[index],_bookingBloc);
                   },
                 );
               } else if (snapshot.hasError) {
-                return Text("Error al cargar las reservas");
+                return const Text("Error al cargar las reservas");
               }
 
               return const Center(
@@ -60,13 +62,31 @@ class _HomeViewState extends State<HomeView> {
   }
 }
 
-Widget buildBookingCard(Booking booking) {
+Widget buildBookingCard(Booking booking, BookingBloc bookingBloc) {
   return Card(
     elevation: 4.0,
     margin: const EdgeInsets.all(10.0),
     child: Column(
       children: [
         ListTile(
+          leading: FutureBuilder<String>(
+              future: RemoteDataSource.getWeatherMapServices(),
+              builder: (context, snapshot) {
+                return snapshot.data != null
+                    ? Column(
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.only(right: 10),
+                            child: Icon(
+                              Icons.wb_cloudy_sharp,
+                              size: 25,
+                            ),
+                          ),
+                          Text(snapshot.data.toString()),
+                        ],
+                      )
+                    : const SizedBox.shrink();
+              }),
           title: Text("Nombre: ${booking.userName}"),
           subtitle: Text("Cancha: ${booking.tennisCourt.name}"),
         ),
@@ -78,11 +98,9 @@ Widget buildBookingCard(Booking booking) {
           children: [
             TextButton(
               onPressed: () {
-                // Lógica para manejar la acción del botón en la tarjeta
-                print(
-                    'Botón de acción presionado para la reserva ${booking.userName}');
+                bookingBloc.deleteBookingg(booking);
               },
-              child: Text('Acción'),
+              child: const Icon(Icons.delete_forever),
             ),
           ],
         ),
