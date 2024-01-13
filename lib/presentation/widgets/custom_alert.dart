@@ -4,11 +4,13 @@ class CustomAlert extends StatelessWidget {
   final String title;
   final String content;
   final String buttonText;
+  final VoidCallback? function;
 
   CustomAlert({
     required this.title,
     required this.content,
     required this.buttonText,
+    this.function,
   });
 
   @override
@@ -18,9 +20,7 @@ class CustomAlert extends StatelessWidget {
       content: Text(content),
       actions: [
         TextButton(
-          onPressed: () {
-            Navigator.of(context).pop(); // Cerrar la alerta al hacer clic en el botón
-          },
+          onPressed:function,
           child: Text(buttonText),
         ),
       ],

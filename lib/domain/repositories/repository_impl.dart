@@ -43,7 +43,7 @@ class RepositoryImpl implements Repository {
   Future<Either<CommonFailure, bool>> deleteBooking(Booking booking) async {
     try {
       debugPrint("DELETING $booking");
-      final finder = Finder(filter: Filter.equals('user', booking.userName));
+      final finder = Finder(filter: Filter.equals('userName', booking.userName));
       await _store.delete(await _db, finder: finder);
       await getBookings();
       return right(true);

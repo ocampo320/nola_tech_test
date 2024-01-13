@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:test_flutter_dev/app_string.dart';
 import 'package:test_flutter_dev/di/app_module.dart';
 import 'package:test_flutter_dev/presentation/bloc/booking_bloc.dart';
 import 'package:test_flutter_dev/presentation/widgets/custom_alert.dart';
@@ -43,8 +44,8 @@ class _NewBookingPageState extends State<NewBookingPage> {
         child: Column(
           children: [
             CustomTextFieldWidget(
-              hintText: 'Nombre de usuario',
-              labelText: 'Nombre de usuario',
+              hintText: AppStrings.userName,
+              labelText: AppStrings.userName,
               onChanged: (v) {
                 _bookingBloc.updateUserName(v);
               },
@@ -80,7 +81,7 @@ class _NewBookingPageState extends State<NewBookingPage> {
                 stream: _bookingBloc.showAlertStream,
                 builder: (context, snapshot) {
                   return CustomButton(
-                    text: "Guardar",
+                    text: AppStrings.save,
                     onPressed: () async {
                       await _bookingBloc.saveBooking();
 
@@ -90,9 +91,9 @@ class _NewBookingPageState extends State<NewBookingPage> {
                           context: context,
                           builder: (BuildContext context) {
                             return CustomAlert(
-                              title: 'Alerta',
-                              content: 'Ya no puede agendar mas usuario',
-                              buttonText: 'Aceptar',
+                              title: AppStrings.alert,
+                              content: AppStrings.noMoreMessages ,
+                              buttonText: AppStrings.accept,
                             );
                           },
                         );

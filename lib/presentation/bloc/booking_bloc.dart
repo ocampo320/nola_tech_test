@@ -61,24 +61,28 @@ class BookingBloc {
   }
 
   Future loadBookings() async {
-    try {
-      final result = await getBookings();
+  try {
+    final result = await getBookings();
 
-      result.fold(
-        (failure) {
-          _stateController
-              .add(BookingState.error("Error al cargar los agendamientos"));
-        },
-        (bookings) {
-          _bookingsController.add(bookings);
-          _stateController.add(BookingState.success(bookings));
-        },
-      );
-    } catch (e) {
-      _stateController
-          .add(BookingState.error("Error al cargar los agendamientos"));
-    }
+    result.fold(
+      (failure) {
+        _stateController
+            .add(BookingState.error("Error al cargar los agendamientos"));
+      },
+      (bookings) {
+        // Ordenar los agendamientos por fecha (ascendente)
+        bookings.sort((a, b) => a.date.compareTo(b.date));
+
+        _bookingsController.add(bookings);
+        _stateController.add(BookingState.success(bookings));
+      },
+    );
+  } catch (e) {
+    _stateController
+        .add(BookingState.error("Error al cargar los agendamientos"));
   }
+}
+
 
   void addBookingg(Booking booking) async {
     try {
@@ -121,14 +125,20 @@ class BookingBloc {
   Future saveBooking() async {
     await loadBookings();
 
-    int count = _bookingsController.value
+    // Filtrar las reservas solo para la cancha seleccionada y la fecha seleccionada
+    List<Booking> bookingsForSelectedCourtAndDate = _bookingsController.value
         .where((booking) =>
-            booking.tennisCourt.name == _selectedItemController.value)
-        .length;
+            booking.tennisCourt.name == _selectedItemController.value &&
+            booking.date.year == _selectedDate.year &&
+            booking.date.month == _selectedDate.month &&
+            booking.date.day == _selectedDate.day)
+        .toList();
 
-    if (count >= 3) {
+    if (bookingsForSelectedCourtAndDate.length >= 3) {
+      // Ya hay 3 reservas para esta cancha en este día
       _showAlertController.add(false);
     } else {
+      // Puedes hacer la reserva porque no hay más de 3 reservas para esta cancha en este día
       final newBooking = Booking(
           TennisCourt(
               name: _selectedItemController.value,

@@ -25,4 +25,28 @@ class RemoteDataSource {
 
     return rainProbability.toString();
   }
+
+
+  static Future<String> getWeatherMapServicesByDate(DateTime date) async {
+     String rainProbability = '';
+    String location = 'Medellin';
+
+    String apiKey = '4ecbe99f635f10a53416778bd51cad7a';
+
+    // Convertir la fecha de Dart a Unix timestamp
+    int unixTimestamp = (date.toUtc().millisecondsSinceEpoch / 1000).round();
+
+    // Obtener el pronóstico del tiempo para una fecha específica
+    http.Response response = await http.get(Uri.parse(
+        'http://api.openweathermap.org/data/2.5/weather?q=$location&dt=$unixTimestamp&appid=$apiKey'));
+
+    final data = jsonDecode(response.body);
+
+    // Obtener la descripción del estado del tiempo (probabilidad de lluvia)
+    var weatherDescription = data["weather"].first["description"];
+    rainProbability = weatherDescription.toString();
+
+    return rainProbability;
+  
+  }
 }
