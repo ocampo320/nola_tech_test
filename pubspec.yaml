@@ -49,6 +49,7 @@ dependencies:
   google_fonts: ^4.0.3
   rxdart: ^0.27.7
   sembast: ^3.4.0+6
+  mockito: ^5.2.0
 
 dev_dependencies:
   flutter_test:

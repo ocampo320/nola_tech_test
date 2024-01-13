@@ -9,15 +9,15 @@ class RemoteDataSource {
 
     String apiKey = '4ecbe99f635f10a53416778bd51cad7a';
 
-    http.Response response = await http.get(Uri.parse(
-        'http://api.openweathermap.org/data/2.5/forecast?q=$location&appid=$apiKey'));
+   /* http.Response response = await http.get(Uri.parse(
+        'https://api.openweathermap.org/data/2.5/weather?lat=6.25184&lon=75.56359&appid=4ecbe99f635f10a53416778bd51cad7a'));*/
 
-    final data = jsonDecode(response.body);
-    final long = data["city"]["coord"]["lon"];
-    final lant = data["city"]["coord"]["lat"];
+   // final data = jsonDecode(response.body);
+    //final long = data["city"]["coord"]["lon"];
+    //final lant = data["city"]["coord"]["lat"];
 
     http.Response responseRain = await http.get(Uri.parse(
-        'https://api.openweathermap.org/data/2.5/weather?lat=$lant&lon=$long&appid=$apiKey'));
+        'https://api.openweathermap.org/data/2.5/weather?lat=6.25184&lon=75.56359&appid=$apiKey'));
 
     final dataRain = jsonDecode(responseRain.body);
 

@@ -42,12 +42,25 @@ class _HomeViewState extends State<HomeView> {
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 List<Booking> bookings = snapshot.data ?? [];
-                return ListView.builder(
-                  itemCount: bookings.length,
-                  itemBuilder: (context, index) {
-                    return buildBookingCard(
-                        bookings[index], _bookingBloc, context);
-                  },
+                return Padding(
+                  padding: const EdgeInsets.only(left: 16,right: 16),
+                  child: ListView.builder(
+                    itemCount: bookings.length,
+                    itemBuilder: (context, index) {
+                      return FutureBuilder<String>(
+                          future: RemoteDataSource.getWeatherMapServicesByDate(bookings[index].date),
+                          builder: (context, snapshot) {
+                            return snapshot.data != null
+                                ? buildBookingCard(bookings[index], _bookingBloc,
+                                    context, snapshot.data ?? "")
+                                : const Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: Center(
+                                      child: CircularProgressIndicator()),
+                                );
+                          });
+                    },
+                  ),
                 );
               } else if (snapshot.hasError) {
                 return const Text(AppStrings.error);
@@ -63,7 +76,7 @@ class _HomeViewState extends State<HomeView> {
 }
 
 Widget buildBookingCard(
-    Booking booking, BookingBloc bookingBloc, BuildContext context) {
+    Booking booking, BookingBloc bookingBloc, BuildContext context, String c) {
   bookingBloc.loadBookings();
   return Card(
     elevation: 4.0,
@@ -72,7 +85,7 @@ Widget buildBookingCard(
       children: [
         ListTile(
           leading: Column(
-            children: [
+            children:   [
               const Padding(
                 padding: EdgeInsets.only(right: 10),
                 child: Icon(
@@ -80,14 +93,7 @@ Widget buildBookingCard(
                   size: 25,
                 ),
               ),
-              FutureBuilder<String>(
-                  future: RemoteDataSource.getWeatherMapServicesByDate(
-                      booking.date),
-                  builder: (context, snapshot) {
-                    return snapshot.data != null
-                        ? Text(snapshot.data.toString())
-                        : const SizedBox.shrink();
-                  }),
+              Text(c)
             ],
           ),
           title: Text("${AppStrings.name}: ${booking.userName}"),
