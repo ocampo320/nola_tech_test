@@ -67,28 +67,41 @@ class BookingBloc {
     _selectedItemController.sink.add(selectedItem);
   }
 
-  Future loadBookings() async {
-    try {
-      final result = await getBookings();
+Future loadBookings() async {
+  try {
+    final result = await getBookings();
 
-      result.fold(
-        (failure) {
-          _stateController
-              .add(BookingState.error("Error al cargar los agendamientos"));
-        },
-        (bookings) {
-          // Ordenar los agendamientos por fecha (ascendente)
-          bookings.sort((a, b) => a.date.compareTo(b.date));
+    result.fold(
+      (failure) {
+        _stateController.add(BookingState.error("Error al cargar los agendamientos"));
+      },
+      (bookings) {
+        // Filtrar el valor por defecto
+        final defaultValue = Booking(
+          TennisCourt(name: "", bookingCounter: 0),
+          DateTime.now(),
+          "",
+        );
 
-          _bookingsController.add(bookings);
-          _stateController.add(BookingState.success(bookings));
-        },
-      );
-    } catch (e) {
-      _stateController
-          .add(BookingState.error("Error al cargar los agendamientos"));
-    }
+        // Filtrar los agendamientos que no son el valor por defecto
+        final filteredBookings = bookings.where((booking) => booking != defaultValue).toList();
+
+        // Ordenar los agendamientos por fecha (ascendente) y asegurarte de que el valor por defecto esté siempre primero
+        filteredBookings.sort((a, b) => a.date.compareTo(b.date));
+
+        // Agregar el valor por defecto al principio de la lista
+        final finalBookings = [defaultValue, ...filteredBookings];
+
+        _bookingsController.add(finalBookings);
+        _stateController.add(BookingState.success(finalBookings));
+      },
+    );
+  } catch (e) {
+    _stateController.add(BookingState.error("Error al cargar los agendamientos"));
   }
+}
+
+
 
   void addBookingg(Booking booking) async {
     try {
@@ -144,6 +157,7 @@ class BookingBloc {
     if (bookingsForSelectedCourtAndDate.length >= 3) {
       // Ya hay 3 reservas para esta cancha en este día
       _showAlertController.add(true);
+      
       response = true;
     } else {
       // Puedes hacer la reserva porque no hay más de 3 reservas para esta cancha en este día
@@ -157,6 +171,7 @@ class BookingBloc {
       addBookingg(newBooking);
       _showAlertController.add(false);
       response = false;
+      await loadBookings();
     }
 
     return response;
@@ -242,8 +257,8 @@ class BookingBloc {
   }
 
   void dispose() {
-    _bookingsController.close();
-    _stateController.close();
+  //  _bookingsController.close();
+   // _stateController.close();
   }
 }
 

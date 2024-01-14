@@ -25,6 +25,8 @@ TextEditingController userName = TextEditingController();
 
 class _NewBookingPageState extends State<NewBookingPage> {
   final BookingBloc _bookingBloc = AppModule().provideBookingBloc();
+
+
   @override
   @override
   Widget build(BuildContext context) {
@@ -33,6 +35,7 @@ class _NewBookingPageState extends State<NewBookingPage> {
       'Cancha B',
       'Cancha C',
     ];
+ 
 
     return SafeArea(
       child: Scaffold(
@@ -48,9 +51,8 @@ class _NewBookingPageState extends State<NewBookingPage> {
                 hintText: AppStrings.userName,
                 labelText: AppStrings.userName,
                 onChanged: (v) {
-                 
                   _bookingBloc.updateUserName(v);
-                   _bookingBloc.validateBookingFields();
+                  _bookingBloc.validateBookingFields();
                 },
               ),
               const SizedBox(
@@ -63,7 +65,7 @@ class _NewBookingPageState extends State<NewBookingPage> {
                       selectedDate: snapshot.data ?? DateTime.now(),
                       onDateChanged: (newDate) {
                         _bookingBloc.selectedDate = newDate;
-                         _bookingBloc.validateBookingFields();
+                        _bookingBloc.validateBookingFields();
                       },
                     );
                   }),
@@ -78,7 +80,7 @@ class _NewBookingPageState extends State<NewBookingPage> {
                       selectedItem: snapshot.data ?? "",
                       onItemSelected: (value) {
                         _bookingBloc.setSelectedItem(value ?? "");
-                         _bookingBloc.validateBookingFields();
+                        _bookingBloc.validateBookingFields();
                       },
                     );
                   }),
@@ -97,7 +99,7 @@ class _NewBookingPageState extends State<NewBookingPage> {
                               text: AppStrings.save,
                               onPressed: snapshotIsActive.data == true
                                   ? () async {
-                                      _bookingBloc.saveBooking().then((value) {
+                                      _bookingBloc.saveBooking().then((value)async {
                                         if (value == true) {
                                           showDialog(
                                             context: context,
@@ -111,6 +113,7 @@ class _NewBookingPageState extends State<NewBookingPage> {
                                             },
                                           );
                                         } else {
+                                          _bookingBloc.loadBookings();
                                           context.router.pop();
                                         }
                                       });

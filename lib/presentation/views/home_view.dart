@@ -8,6 +8,7 @@ import 'package:test_flutter_dev/domain/entities/booking.dart';
 import 'package:test_flutter_dev/presentation/bloc/booking_bloc.dart';
 import 'package:test_flutter_dev/presentation/widgets/custom_alert.dart';
 import 'package:test_flutter_dev/presentation/widgets/custom_app_bar_widget.dart';
+import 'package:test_flutter_dev/date_util.dart' as DateUtil;
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -16,22 +17,41 @@ class HomeView extends StatefulWidget {
   State<HomeView> createState() => _HomeViewState();
 }
 
-class _HomeViewState extends State<HomeView> {
+class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
   final BookingBloc _bookingBloc = AppModule().provideBookingBloc();
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // La aplicación ha vuelto a estar activa (pantalla principal visible)
+      _bookingBloc.loadBookings();
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     _bookingBloc.loadBookings();
+    WidgetsBinding.instance?.addObserver(this);
   }
 
   @override
   Widget build(BuildContext context) {
+    _bookingBloc.loadBookings();
     return SafeArea(
       child: Scaffold(
           floatingActionButton: FloatingActionButton(
             child: const Icon(Icons.add),
-            onPressed: () {
-              context.router.push(const NewBookingPageRoute());
+            onPressed: () async {
+              // Realizar un push a la nueva pantalla
+              final result = await context.router.push(NewBookingPageRoute());
+
+              // Puedes manejar el resultado si lo necesitas
+              if (result != null) {
+                print('Resultado de la pantalla nueva: $result');
+              }
+
+              // Actualizar datos después de regresar
+              _bookingBloc.loadBookings();
             },
           ),
           appBar: const CustomAppBarWidget(
@@ -43,22 +63,12 @@ class _HomeViewState extends State<HomeView> {
               if (snapshot.hasData) {
                 List<Booking> bookings = snapshot.data ?? [];
                 return Padding(
-                  padding: const EdgeInsets.only(left: 16,right: 16),
+                  padding: const EdgeInsets.only(left: 16, right: 16),
                   child: ListView.builder(
                     itemCount: bookings.length,
                     itemBuilder: (context, index) {
-                      return FutureBuilder<String>(
-                          future: RemoteDataSource.getWeatherMapServicesByDate(bookings[index].date),
-                          builder: (context, snapshot) {
-                            return snapshot.data != null
-                                ? buildBookingCard(bookings[index], _bookingBloc,
-                                    context, snapshot.data ?? "")
-                                : const Padding(
-                                  padding: EdgeInsets.all(8.0),
-                                  child: Center(
-                                      child: CircularProgressIndicator()),
-                                );
-                          });
+                      return buildBookingCard(
+                          bookings[index], _bookingBloc, context);
                     },
                   ),
                 );
@@ -76,16 +86,19 @@ class _HomeViewState extends State<HomeView> {
 }
 
 Widget buildBookingCard(
-    Booking booking, BookingBloc bookingBloc, BuildContext context, String c) {
+  Booking booking,
+  BookingBloc bookingBloc,
+  BuildContext context,
+) {
   bookingBloc.loadBookings();
-  return Card(
+  return  booking.tennisCourt.name!.isNotEmpty?  Card(
     elevation: 4.0,
     margin: const EdgeInsets.all(10.0),
     child: Column(
       children: [
         ListTile(
           leading: Column(
-            children:   [
+            children: [
               const Padding(
                 padding: EdgeInsets.only(right: 10),
                 child: Icon(
@@ -93,15 +106,23 @@ Widget buildBookingCard(
                   size: 25,
                 ),
               ),
-              Text(c)
+              FutureBuilder<String>(
+                  future: RemoteDataSource.getWeatherMapServicesByDate(
+                      booking.date),
+                  builder: (context, snapshot) {
+                    return snapshot.data != null
+                        ? Text(snapshot.data ?? "")
+                        : const SizedBox.square();
+                  })
             ],
           ),
-          title: Text("${AppStrings.name}: ${booking.userName}"),
-          subtitle: Text("${AppStrings.date}: ${booking.tennisCourt.name}"),
+          title:Text("${AppStrings.name}: ${booking.userName}"),
+          subtitle:booking.tennisCourt.name != ""? Text("${AppStrings.court}: ${booking.tennisCourt.name}"):const SizedBox.shrink(),
         ),
         Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Text("${AppStrings.date}: ${booking.date.toString()}"),
+          child: Text(
+              "${AppStrings.date}: ${DateUtil.DateUtils.formatDate(booking.date)}"),
         ),
         ButtonBar(
           children: [
@@ -122,11 +143,19 @@ Widget buildBookingCard(
                   },
                 );
               },
-              child: const Icon(Icons.delete_forever),
+              child: booking.tennisCourt.name != ""
+                  ? const Icon(
+                      Icons.delete_forever,
+                      color: Colors.red,
+                    )
+                  : const SizedBox.shrink(),
             ),
           ],
         ),
       ],
     ),
+  ):const Padding(
+    padding: EdgeInsets.only(top: 16),
+    child: Center(child: Text("Lista de Reservas")),
   );
 }
