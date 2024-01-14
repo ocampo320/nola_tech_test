@@ -1,16 +1,16 @@
-# test_flutter_dev
+# Nombre de tu Aplicación
 
-A new Flutter project.
+Esta aplicación de Flutter fue desarrollada utilizando la versión 3.7.12 de Flutter.
 
-## Getting Started
+## Requisitos Previos
 
-This project is a starting point for a Flutter application.
+Antes de comenzar, asegúrate de tener instalado Flutter y Dart en tu máquina local. Puedes seguir las [instrucciones de instalación de Flutter](https://flutter.dev/docs/get-started/install) para configurar tu entorno de desarrollo.
 
-A few resources to get you started if this is your first Flutter project:
+## Configuración del Proyecto
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+1. **Clona el Repositorio:**
+   ```bash
+   git clone https://github.com/ocampo320/nola_tech_test.git
+   cd tu-aplicacion
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+   Rama de trabajo develop
